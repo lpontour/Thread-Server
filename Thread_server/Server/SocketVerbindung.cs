@@ -5,16 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Server
 {
-    class SocketVerbindung
+    internal class SocketVerbindung
     {
         #region fields
-        int anzVerbindungen = 0;
+        // Semaphore erzeugen
         int maxVerbindungen = 2;
+        private static Semaphore semaphore = new Semaphore(2, 2);
+        // Konfiguration Server
         int port = 3;
-        IPAddress ipAdresse;
+        IPAddress ipAdresse = IPAddress.Any;
+        // Verbindung
         string nachricht;
         byte[] buffer = new Byte[256];
         string data = null;
@@ -22,28 +26,40 @@ namespace Server
 
 
         #region ctor
-
-
+        internal SocketVerbindung()
+        {
+            Thread wartenThread = new Thread(new ThreadStart(this.WartenAufVerbindung));
+            wartenThread.Start();
+        }
         #endregion
 
 
         #region methods
-        void VerbindungAnnehmen()
+        internal void WartenAufVerbindung()
         {
-            TcpListener server = new TcpListener(ipAdresse, port);
-            Socket socket = server.AcceptSocket();
+            TcpListener listenerServer = new TcpListener(ipAdresse, port);
 
-            server.Start();
-
-
-            if (anzVerbindungen <=2)
+            try
             {
-                nachricht = "Verbindung wird aufgebaut";
+                listenerServer.Start();
+                Socket socket = listenerServer.AcceptSocket();
+
             }
-            else
+            catch (Exception exception)
             {
-                nachricht = "Maximale Anzahl Verbindungen schon erreicht. Versuche es später erneut.";
+                throw new Exception("Fehler bei Verbindungserkennung", exception);
             }
+
+
+        }
+
+        internal void VerbindungSemaphore()
+        {
+            semaphore.WaitOne();
+
+
+
+            semaphore.Release();
         }
         #endregion
 
