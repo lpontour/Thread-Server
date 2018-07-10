@@ -18,7 +18,7 @@ namespace Server
 		}
 
 
-		//Format für Formatierer waehlen
+		//Format für Formatierer waehlen (bisher nur nummer 1 sinnvoll 2 und 3 zwar anders und vorhanden aber ohne richtigen Nutzen)
 		private Formatierer ErstelleFormatierer(int format, NetworkStream socketStream)
 		{
 			switch (format)

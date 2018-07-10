@@ -31,7 +31,6 @@ namespace Server
 		}
 		#endregion
 
-
 		#region methods
 		//Aufrufen des schreibenden Interfaces
 		private void Schreiben(XmlDocument fertigeXml)
