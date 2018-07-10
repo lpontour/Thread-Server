@@ -45,8 +45,7 @@
     <Compile Include="FactoryFormate.cs" />
     <Compile Include="Formatierer.cs" />
     <Compile Include="IFormatierer.cs" />
-    <Compile Include="ISocketVerbindung.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="XMLServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketVerbindung.cs" />
   </ItemGroup>

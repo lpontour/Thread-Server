@@ -12,16 +12,11 @@ namespace Server
     internal class SocketVerbindung
     {
         #region fields
-        // Anzahl der maximalen Verbindungen
-        internal int maxVerbindungen;
-
-        // Konfigiuration des Servers
-        internal int port;
-        internal IPAddress ipAdresse;
-
-        // Socket
-        internal Socket socket;
-
+        private int maxVerbindungen;
+        private int port;
+        private IPAddress ipAdresse;
+        private TcpClient tcpClient;
+        private IFormatierer formartierer;
         #endregion
 
         #region ctor
@@ -74,7 +69,7 @@ namespace Server
 
 
         #region methods
-        internal void WartenAufVerbindung()
+        private void WartenAufVerbindung()
         {
             // Initialisieren und starten des TCPListeners
             TcpListener listenerServer;
@@ -102,9 +97,11 @@ namespace Server
                             // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
                             semaLock = semaphore.WaitOne();
                             // Annehmen der Socketverbindung
-                            socket = listenerServer.AcceptSocket();
+                            tcpClient = listenerServer.AcceptTcpClient();
 
-                            // Übergeben des Sockets
+                            // Übergeben des NetworkStreams
+                            NetworkStream stream = tcpClient.GetStream();
+                            formartierer.Formatieren(stream,1);
 
                             // Release inkrementiert die Semaphore
                             semaphore.Release();
@@ -119,6 +116,5 @@ namespace Server
 
         }
         #endregion
-
     }
 }

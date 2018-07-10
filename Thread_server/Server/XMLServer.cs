@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Program
+    class XMLServer
     {
         static void Main(string[] args)
         {
-            SocketVerbindung socket = new SocketVerbindung();
+            SocketVerbindung verbindung = new SocketVerbindung();
         }
     }
 }
