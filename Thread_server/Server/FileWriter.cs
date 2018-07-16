@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -51,8 +52,8 @@ namespace Server
                     }
                 }
                 else
-                {
-                    _xml.Save(_clientName + "_NC.xml");
+                {                    
+                    Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml"));
                 }
             }
         }
@@ -108,7 +109,26 @@ namespace Server
                     break;
                 }
             } while (notFound);
-            oldXml.Save(_clientName + "_NC.xml");
+            Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml"));
+            
+       
+        }
+
+        private void SaveXml(XmlDocument xml1,string dateiName)
+        {
+            
+                Monitor.Enter(dateiName);
+                {
+                    try
+                    {
+                         xml1.Save(dateiName);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(dateiName);
+                    }
+                }
+            
         }
         #endregion
     }
