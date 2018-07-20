@@ -5,21 +5,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Server
 {
 	abstract class FactoryFormate : IFormatierer
 	{
 		#region methods
-		//Implementation der Schnittstelle, startet erzeugen eines konkreten Formatierers
+		//Implementation der Schnittstelle, startet erzeugen eines konkreten Formatierers in einem neuen Thread
 		public void Formatieren(NetworkStream socketStream, int formatnr)
 		{
-			Formatierer f = ErstelleFormatierer(formatnr, socketStream);
+			new Thread(() => 
+			{
+				Formatierer f = FormatiererWaehlen(formatnr, socketStream);
+			});
 		}
 
 
 		//Format für Formatierer waehlen (bisher nur nummer 1 sinnvoll 2 und 3 zwar anders und vorhanden aber ohne richtigen Nutzen)
-		private Formatierer ErstelleFormatierer(int format, NetworkStream socketStream)
+		private Formatierer FormatiererWaehlen(int format, NetworkStream socketStream)
 		{
 			switch (format)
 			{
@@ -36,7 +40,7 @@ namespace Server
 
 
 		//Konkretes erstellen des Formatierers mit dem gewünschten Format
-		private Formatierer CreatFormatierer(XmlWriterSettings format , NetworkStream socketStream)
+		private Formatierer ErstelleFormatierer(XmlWriterSettings format , NetworkStream socketStream)
 		{
 			return (new Formatierer(format, socketStream));
 		}
@@ -49,7 +53,7 @@ namespace Server
 		{
 			XmlWriterSettings settings = new XmlWriterSettings { Indent = true, IndentChars = "  ", NewLineChars = "\r\n", NewLineHandling = NewLineHandling.Replace };
 
-			return (CreatFormatierer(settings, socketStream));
+			return (ErstelleFormatierer(settings, socketStream));
 		}
 
 
@@ -58,7 +62,7 @@ namespace Server
 		{
 			XmlWriterSettings settings = new XmlWriterSettings { Indent = true, IndentChars = "", NewLineChars = "\r\n", NewLineHandling = NewLineHandling.Replace };
 
-			return (CreatFormatierer(settings, socketStream));
+			return (ErstelleFormatierer(settings, socketStream));
 		}
 
 
@@ -67,7 +71,7 @@ namespace Server
 		{
 			XmlWriterSettings settings = new XmlWriterSettings { Indent = true, IndentChars = "  ", NewLineChars = "\r", NewLineHandling = NewLineHandling.Replace };
 
-			return (CreatFormatierer(settings, socketStream));
+			return (ErstelleFormatierer(settings, socketStream));
 		}
 		#endregion
 
