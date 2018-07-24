@@ -18,7 +18,7 @@ namespace Server
 			new Thread(() => 
 			{
 				Formatierer f = FormatiererWaehlen(formatnr, socketStream);
-			});
+			}).Start();
 		}
 
 

@@ -110,7 +110,7 @@ namespace Server
                 }
             } while (notFound);
             Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml"));
-            
+            savinThread.Start();
        
         }
 

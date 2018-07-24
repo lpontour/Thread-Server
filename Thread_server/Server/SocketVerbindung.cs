@@ -17,6 +17,10 @@ namespace Server
         private IPAddress ipAdresse;
         private TcpClient tcpClient;
         private IFormatierer formartierer;
+        TcpListener listenerServer;
+        bool semaLock = false;
+
+
         #endregion
 
         #region ctor
@@ -56,65 +60,66 @@ namespace Server
                 string eingabe = Console.ReadLine();
                 erlaubt = int.TryParse(eingabe, out port);
             }
-            
+
+            listenerServer = new TcpListener(ipAdresse, port);
+
+            listenerServer.Start();
+            Console.WriteLine("Starten");
+
+            Console.WriteLine("Verbindungen werden gesucht.");
             Console.ReadKey();
 
-            // Dauerhaftes warten auf Verbindungsanfragen des Clients
-            while(true)
-            { 
-                WartenAufVerbindung();
-            }
-        }
-        #endregion
-
-
-        #region methods
-        private void WartenAufVerbindung()
-        {
-            // Initialisieren und starten des TCPListeners
-            TcpListener listenerServer;
-            listenerServer = new TcpListener(ipAdresse, port);
-            listenerServer.Start();
-
-            // Variable zum Blockieren des kritischen Codes
-            bool semaLock = false;
-
+            Console.WriteLine("locken");
             // Erzeugen der Semaphore...
             Semaphore semaphore = new Semaphore(maxVerbindungen, maxVerbindungen);
+            Console.WriteLine("erstellen");
 
-            // ...wenn eine Verbindungsanfrage besteht...
-            if (listenerServer.Pending())
+            // Dauerhaftes warten auf Verbindungsanfragen des Clients
+            while (true)
             {
-                // ...und die Semaphore noch nicht blockiert wird,...
-                if (!semaLock)
+                // Initialisieren und starten des TCPListeners
+
+                // Variable zum Blockieren des kritischen Codes
+
+                // ...wenn eine Verbindungsanfrage besteht...
+                if (listenerServer.Pending())
                 {
-                    try
+                    Console.WriteLine("pending");
+                    // ...und die Semaphore noch nicht blockiert wird,...
+                    if (!semaLock)
                     {
-                        // ...wird ein neuer Thread erstellt 
-                        new Thread (() =>
+                        Console.WriteLine("semalock");
+                        try
                         {
-                            Thread.CurrentThread.IsBackground = true;
-                            // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
-                            semaLock = semaphore.WaitOne();
-                            // Annehmen der Socketverbindung
-                            tcpClient = listenerServer.AcceptTcpClient();
+                            Console.WriteLine("try");
+                            // ...wird ein neuer Thread erstellt 
+                            new Thread(() =>
+                            {
+                                Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+                                Thread.CurrentThread.IsBackground = true;
+                                // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
+                                semaLock = semaphore.WaitOne();
+                                // Annehmen der Socketverbindung
+                                tcpClient = listenerServer.AcceptTcpClient();
+                                Console.WriteLine("Verbindung entgegengenommen.");
 
-                            // Übergeben des NetworkStreams
-                            NetworkStream stream = tcpClient.GetStream();
-                            formartierer.Formatieren(stream,1);
+                                // Übergeben des NetworkStreams
+                                NetworkStream stream = tcpClient.GetStream();
+                                formartierer.Formatieren(stream, 1);
 
-                            // Release inkrementiert die Semaphore
-                            semaphore.Release();
-                        });
-                    }
-                    catch (Exception exception)
-                    {
-                        throw new Exception("Fehler bei Verbindung", exception);
+                                // Release inkrementiert die Semaphore
+                                semaphore.Release();
+                            }).Start();
+                        }
+                        catch (Exception exception)
+                        {
+                            throw new Exception("Fehler bei Verbindung", exception);
+                        }
                     }
                 }
             }
-
         }
         #endregion
+
     }
 }
