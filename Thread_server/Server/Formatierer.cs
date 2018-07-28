@@ -12,7 +12,7 @@ namespace Server
 	class Formatierer : FactoryFormate
 	{
 		#region fields
-		private IFilewriter fileWriter;
+		private IFilewriter fileWriter = new Filewriter();
 		protected string xmlString;
 		protected XmlWriterSettings settings;
 		protected XmlDocument xml;
