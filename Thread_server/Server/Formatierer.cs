@@ -19,14 +19,14 @@ namespace Server
 		#endregion
 
 		#region ctor
-		//Erstellen des Formatierers, uebernehmen der Formateinstellungen, auslesen des Networkstreams und umwandlen in ein XmlDocument, da nach Formatieren und starten des Schreibens
-		public Formatierer(XmlWriterSettings neueSettings, NetworkStream neueXml)
+		//Erstellen des Formatierers, uebernehmen der Formateinstellungen, auslesen des Networkstreams und umwandlen in ein XmlDocument, danach Formatieren und starten des Schreibens
+		public Formatierer(XmlWriterSettings neueSettings, XmlDocument neueXml)
 		{
+			xml = neueXml;
+
 			settings = neueSettings;
 
-			xml.Load(XmlReader.Create(neueXml));
-
-			xml.LoadXml(Formatieren(xml));
+			Formatieren(xml);
 
 			Schreiben(xml);
 		}

@@ -12,7 +12,7 @@ namespace Server
 	{
 		#region methods
 		//Bereitstellen der Schnittstelle zum erzeugen und benutzen einers XML-Formatierers 
-		void Formatieren(NetworkStream socketStream, int formatnr);
+		void Formatieren(XmlDocument neueXml, int formatnr);
 		#endregion
 	}
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using System.Xml;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -95,7 +96,8 @@ namespace Server
                             // ...wird ein neuer Thread erstellt 
                             new Thread(() =>
                             {
-                                Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+								XmlDocument xml = new XmlDocument();
+								Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
                                 Thread.CurrentThread.IsBackground = true;
                                 // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
                                 semaLock = semaphore.WaitOne();
@@ -105,7 +107,8 @@ namespace Server
 
                                 // Übergeben des NetworkStreams
                                 NetworkStream stream = tcpClient.GetStream();
-                                formartierer.Formatieren(stream, 1);
+								xml.Load(XmlReader.Create(stream));
+								formartierer.Formatieren(xml, 1);
 
                                 // Release inkrementiert die Semaphore
                                 semaphore.Release();

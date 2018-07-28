@@ -13,65 +13,65 @@ namespace Server
 	{
 		#region methods
 		//Implementation der Schnittstelle, startet erzeugen eines konkreten Formatierers in einem neuen Thread
-		public void Formatieren(NetworkStream socketStream, int formatnr)
+		public void Formatieren(XmlDocument neueXml, int formatnr)
 		{
 			new Thread(() => 
 			{
-				Formatierer f = FormatiererWaehlen(formatnr, socketStream);
+				Formatierer f = FormatiererWaehlen(formatnr, neueXml);
 			}).Start();
 		}
 
 
 		//Format für Formatierer waehlen (bisher nur nummer 1 sinnvoll 2 und 3 zwar anders und vorhanden aber ohne richtigen Nutzen)
-		private Formatierer FormatiererWaehlen(int format, NetworkStream socketStream)
+		private Formatierer FormatiererWaehlen(int format, XmlDocument xmlStream)
 		{
 			switch (format)
 			{
 				case 1:
-					return (FormatiereInStandert(socketStream));
+					return (FormatiereInStandert(xmlStream));
 				case 2:
-					return (FormatiereInKeineLeerzeichen(socketStream));
+					return (FormatiereInKeineLeerzeichen(xmlStream));
 				case 3:
-					return (FormatiereInKeinZeilenumbruch(socketStream));
+					return (FormatiereInKeinZeilenumbruch(xmlStream));
 				default:
-					return (FormatiereInStandert(socketStream));
+					return (FormatiereInStandert(xmlStream));
 			}
 		}
 
 
 		//Konkretes erstellen des Formatierers mit dem gewünschten Format
-		private Formatierer ErstelleFormatierer(XmlWriterSettings format , NetworkStream socketStream)
+		private Formatierer ErstelleFormatierer(XmlWriterSettings format , XmlDocument xmlStream)
 		{
-			return (new Formatierer(format, socketStream));
+			return (new Formatierer(format, xmlStream));
 		}
 
 
 		#region Formate
 
 		//Erzeugt die Formatierungseinstellungen für den Formatierer
-		private Formatierer FormatiereInStandert(NetworkStream socketStream)
+		private Formatierer FormatiereInStandert(XmlDocument xmlStream)
 		{
 			XmlWriterSettings settings = new XmlWriterSettings { Indent = true, IndentChars = "  ", NewLineChars = "\r\n", NewLineHandling = NewLineHandling.Replace };
 
-			return (ErstelleFormatierer(settings, socketStream));
+			return (ErstelleFormatierer(settings, xmlStream));
 		}
 
 
 		//Erzeugt die Formatierungseinstellungen für den Formatierer
-		private Formatierer FormatiereInKeineLeerzeichen(NetworkStream socketStream)
+		private Formatierer FormatiereInKeineLeerzeichen(XmlDocument xmlStream)
 		{
 			XmlWriterSettings settings = new XmlWriterSettings { Indent = true, IndentChars = "", NewLineChars = "\r\n", NewLineHandling = NewLineHandling.Replace };
 
-			return (ErstelleFormatierer(settings, socketStream));
+			return (ErstelleFormatierer(settings, xmlStream));
 		}
 
 
 		//Erzeugt die Formatierungseinstellungen für den Formatierer
-		private Formatierer FormatiereInKeinZeilenumbruch(NetworkStream socketStream)
+		private Formatierer FormatiereInKeinZeilenumbruch(XmlDocument xmlStream)
 		{
 			XmlWriterSettings settings = new XmlWriterSettings { Indent = true, IndentChars = "  ", NewLineChars = "\r", NewLineHandling = NewLineHandling.Replace };
 
-			return (ErstelleFormatierer(settings, socketStream));
+			return (ErstelleFormatierer(settings, xmlStream));
 		}
 		#endregion
 
