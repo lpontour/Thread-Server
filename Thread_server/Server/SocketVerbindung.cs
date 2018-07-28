@@ -107,11 +107,14 @@ namespace Server
 
                                 // Übergeben des NetworkStreams
                                 NetworkStream stream = tcpClient.GetStream();
-								xml.Load(XmlReader.Create(stream));
-								formartierer.Formatieren(xml, 1);
+								if(stream.DataAvailable)
+								{
+									xml.Load(XmlReader.Create(stream));
+									formartierer.Formatieren(xml, 1);
 
-                                // Release inkrementiert die Semaphore
-                                semaphore.Release();
+									// Release inkrementiert die Semaphore
+									semaphore.Release();
+								}
                             }).Start();
                         }
                         catch (Exception exception)
