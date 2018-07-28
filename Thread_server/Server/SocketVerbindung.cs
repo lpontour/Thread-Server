@@ -96,7 +96,9 @@ namespace Server
                             // ...wird ein neuer Thread erstellt 
                             new Thread(() =>
                             {
+                                formartierer = ;
 								XmlDocument xml = new XmlDocument();
+                            
 								Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
                                 Thread.CurrentThread.IsBackground = true;
                                 // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
@@ -110,7 +112,7 @@ namespace Server
 								if(stream.DataAvailable)
 								{
 									xml.Load(XmlReader.Create(stream));
-									formartierer.Formatieren(xml, 1);
+                                    formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
 									semaphore.Release();
