@@ -17,7 +17,7 @@ namespace Server
         private int port;
         private IPAddress ipAdresse;
         private TcpClient tcpClient;
-        private IFormatierer formartierer;
+        private IFormatierer formartierer = 
         TcpListener listenerServer;
         bool semaLock = false;
 
@@ -96,7 +96,6 @@ namespace Server
                             // ...wird ein neuer Thread erstellt 
                             new Thread(() =>
                             {
-                                formartierer = ;
 								XmlDocument xml = new XmlDocument();
                             
 								Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
