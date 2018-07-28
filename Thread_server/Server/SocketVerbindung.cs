@@ -17,7 +17,7 @@ namespace Server
         private int port;
         private IPAddress ipAdresse;
         private TcpClient tcpClient;
-        private IFormatierer formartierer = 
+        private IFormatierer formartierer = new FactoryFormate();
         TcpListener listenerServer;
         bool semaLock = false;
 
