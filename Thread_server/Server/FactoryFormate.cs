@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Server
 {
-	abstract class FactoryFormate : IFormatierer
+	class FactoryFormate : IFormatierer
 	{
 		#region methods
 		//Implementation der Schnittstelle, startet erzeugen eines konkreten Formatierers in einem neuen Thread
