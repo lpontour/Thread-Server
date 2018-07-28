@@ -13,7 +13,7 @@ namespace Server
 	{
 		#region methods
 		//Implementation der Schnittstelle, startet erzeugen eines konkreten Formatierers in einem neuen Thread
-		public void Formatieren(XmlDocument neueXml, int formatnr)
+		void IFormatierer.Formatieren(XmlDocument neueXml, int formatnr)
 		{
 			new Thread(() => 
 			{
