@@ -96,7 +96,7 @@ namespace Server
                             // ...wird ein neuer Thread erstellt 
                             new Thread(() =>
                             {
-                                formartierer = ;
+                                
 								XmlDocument xml = new XmlDocument();
                             
 								Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
