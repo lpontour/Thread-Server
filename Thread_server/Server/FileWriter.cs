@@ -42,19 +42,28 @@ namespace Server
                     {
                         if(File.Exists(_clientName+".xml"))
                         {
+                            Console.WriteLine("Lösche alte fertige xml");
+                            Console.WriteLine("Speichere fertige xml");
                             File.Delete(_clientName + ".xml");
                             File.Move(_clientName + "_NC.xml", _clientName + ".xml");
                         }
                         else
-                        {                     
+                        {
+                            Console.WriteLine("Speichere fertige xml");
                             File.Move(_clientName + "_NC.xml", _clientName + ".xml");
                         }
                     }
                 }
                 else
-                {                    
+                {
+                    Console.WriteLine("Füge neue informationen hinzu");
                     Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml"));
+                    savinThread.Start();
                 }
+            }
+            else
+            {
+                Console.WriteLine("Fehler:XmlDocument entspricht null");
             }
         }
 
@@ -103,10 +112,14 @@ namespace Server
                 }
                 else 
                 {
-                    XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode.FirstChild, true);
-                    oldXmlDocNode.ReplaceChild(xmlImport, oldXmlDocNode);
-                    notFound = false;
-                    break;
+                    if (recievedXmlDocNode.FirstChild != null)
+                    {
+                        XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode.FirstChild, true);
+                        oldXmlDocNode.ReplaceChild(xmlImport, oldXmlDocNode);
+                        notFound = false;
+                        break;
+                    }
+
                 }
             } while (notFound);
             Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml"));
@@ -116,19 +129,31 @@ namespace Server
 
         private void SaveXml(XmlDocument xml1,string dateiName)
         {
-            
-                Monitor.Enter(dateiName);
+            bool done = false;
+            do
+            {
+                if (Monitor.TryEnter(dateiName))
                 {
-                    try
+
                     {
-                         xml1.Save(dateiName);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(dateiName);
+                        try
+                        {
+                            Console.WriteLine("Speichere");
+                            xml1.Save(dateiName);
+                        }
+                        finally
+                        {
+                            done = true;
+                            Monitor.Exit(dateiName);
+                        }
                     }
                 }
-            
+                else
+                {
+                    Console.WriteLine("Speichern nicht möglich da schon jemand drinne ist versuche nochmal");
+                    done = false;
+                }
+            } while(!done);
         }
         #endregion
     }
