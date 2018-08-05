@@ -42,22 +42,20 @@ namespace Server
                     {
                         if(File.Exists(_clientName+".xml"))
                         {
-                            Console.WriteLine("Lösche alte fertige xml");
-                            Console.WriteLine("Speichere fertige xml");
-                            File.Delete(_clientName + ".xml");
-                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                            Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 2));
+                            savinThread.Start();
                         }
                         else
                         {
-                            Console.WriteLine("Speichere fertige xml");
-                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                            Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 3));
+                            savinThread.Start();
                         }
                     }
                 }
                 else
                 {
                     Console.WriteLine("Füge neue informationen hinzu");
-                    Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml"));
+                    Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml",1));
                     savinThread.Start();
                 }
             }
@@ -122,14 +120,15 @@ namespace Server
 
                 }
             } while (notFound);
-            Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml"));
+            Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml",1));
             savinThread.Start();
        
         }
 
-        private void SaveXml(XmlDocument xml1,string dateiName)
+        private void SaveXml(XmlDocument xml1,string dateiName,int mode)
         {
             bool done = false;
+  
             do
             {
                 if (Monitor.TryEnter(dateiName))
@@ -138,14 +137,39 @@ namespace Server
                     {
                         try
                         {
-                            Console.WriteLine("Speichere");
-                            xml1.Save(dateiName);
+                            switch (mode)
+                            {
+                                case 1:
+                                    Console.WriteLine("Speichere");
+                                    xml1.Save(dateiName);
+                                    break;
+                                case 2 :
+                                    Console.WriteLine("Lösche alte fertige xml");
+                                    Console.WriteLine("Speichere fertige xml");
+                                    File.Delete(_clientName + ".xml");
+                                    File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                                    break;
+                                case 3:
+                                    Console.WriteLine("Speichere fertige xml");
+                                    File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }
+                        catch(System.IO.IOException e)
+                        {
+                            done = false;
+                            Console.WriteLine("Fehler: war in gesicherten bereich , versuche nochmal");
                         }
                         finally
                         {
                             done = true;
                             Monitor.Exit(dateiName);
                         }
+                        
                     }
                 }
                 else
