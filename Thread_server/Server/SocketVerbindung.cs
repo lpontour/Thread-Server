@@ -7,6 +7,7 @@ using System.Net;
 using System.Xml;
 using System.Net.Sockets;
 using System.Threading;
+using System.IO;
 
 namespace Server
 {
@@ -110,7 +111,7 @@ namespace Server
                                 NetworkStream stream = tcpClient.GetStream();
 								if(stream.DataAvailable)
 								{
-									xml.Load(XmlReader.Create(stream));
+									xml.LoadXml(new StreamReader(stream).ReadToEnd());//XmlReader.Create(stream));
                                     formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore

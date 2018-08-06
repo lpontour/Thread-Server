@@ -77,12 +77,14 @@ namespace Server
         //Fügt die gegebene XML an eine Vorhandene XML eines Clienten und Speichert diese
         private void AppendXml(XmlDocument xml1)
         {
-            XmlDocument oldXml=new XmlDocument();
+            XmlDocument oldXml = new XmlDocument();
             oldXml.Load (_clientName + "_NC.xml");
             XmlNode recievedXmlDocNode = _xml.DocumentElement.FirstChild;
-            XmlNode oldXmlDocNode;
-            oldXmlDocNode = oldXml.DocumentElement.FirstChild;
-            bool notFound = false;
+			XmlNode oldXmlDocNode;
+
+			oldXmlDocNode = oldXml.DocumentElement.FirstChild;
+
+			bool notFound = false;
       
             do
             {
