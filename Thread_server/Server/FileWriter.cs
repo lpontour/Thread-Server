@@ -33,12 +33,17 @@ namespace Server
             {
                 _xml = xmlDocument;
                 _clientName = _xml.DocumentElement.Attributes[0].Value;
+                if(!CheckForRoot(_xml))
+                {
+                    Console.WriteLine("Ordner Angekommen:" + _xml.DocumentElement.FirstChild.Attributes[0].Value);
+                }
                 if (File.Exists(_clientName + "_NC.xml"))
                 {
                     if (CheckForRoot(_xml) != true)
                     {
+                        Console.WriteLine("Füge neue informationen hinzu");
                         AppendXml(_xml);
-                    }else
+                    }else if(CheckForRoot(_xml))
                     {
                         if(File.Exists(_clientName+".xml"))
                         {
@@ -52,9 +57,9 @@ namespace Server
                         }
                     }
                 }
-                else
+                else if(File.Exists(_clientName + "_NC.xml")==false)
                 {
-                    Console.WriteLine("Füge neue informationen hinzu");
+                    Console.WriteLine("Speichere nicht fertige xml erstmalig");
                     Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml",1));
                     savinThread.Start();
                 }
@@ -68,9 +73,12 @@ namespace Server
         //Überprüft ob bei den gegebenen Dokument die Rootwurzel Leer ist oder nicht
         private bool CheckForRoot(XmlDocument xml)
         {
-            if (xml.DocumentElement.HasChildNodes) { return false; }
+            if (xml.DocumentElement.HasChildNodes)
+            { return false; }
+            else
+            { return true; }
 
-            return true;
+         
         }
 
 
@@ -79,49 +87,16 @@ namespace Server
         {
             XmlDocument oldXml = new XmlDocument();
             oldXml.Load (_clientName + "_NC.xml");
-            XmlNode recievedXmlDocNode = _xml.DocumentElement.FirstChild;
-			XmlNode oldXmlDocNode;
+            XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
+			//XmlNode oldXmlDocNode;
 
-			oldXmlDocNode = oldXml.DocumentElement.FirstChild;
+			//oldXmlDocNode = oldXml.DocumentElement.FirstChild;
 
-			bool notFound = false;
-      
-            do
-            {
-                if ((oldXmlDocNode.Attributes[0].Value==recievedXmlDocNode.Attributes[0].Value))
-                {
-                    if (oldXmlDocNode.FirstChild == null)
-                    {
-                        XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
-                        oldXmlDocNode.ParentNode.ReplaceChild(xmlImport, oldXmlDocNode);
-                        notFound = false;
-                        break;
-                    }
-                    else
-                    {
-                        oldXmlDocNode = oldXmlDocNode.FirstChild;
-                        recievedXmlDocNode = recievedXmlDocNode.FirstChild;
-                        notFound = true;
-                    }
-                }
-                else if(oldXmlDocNode.NextSibling!=null)
-                {
-                    oldXmlDocNode = oldXmlDocNode.NextSibling;
-                   
-                    notFound = true;
-                }
-                else 
-                {
-                    if (recievedXmlDocNode.FirstChild != null)
-                    {
-                        XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode.FirstChild, true);
-                        oldXmlDocNode.ReplaceChild(xmlImport, oldXmlDocNode);
-                        notFound = false;
-                        break;
-                    }
+            XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
+            oldXml.DocumentElement.AppendChild(xmlImport);
+                       
+                
 
-                }
-            } while (notFound);
             Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml",1));
             savinThread.Start();
        
@@ -129,58 +104,49 @@ namespace Server
 
         private void SaveXml(XmlDocument xml1,string dateiName,int mode)
         {
-            bool done = false;
-  
-            do
-            {
-                if (Monitor.TryEnter(dateiName))
-                {
+         
+         if((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
 
+            Monitor.Enter(dateiName);
+                
+                try
+                {
+                    switch (mode)
                     {
-                        try
-                        {
-                            switch (mode)
-                            {
-                                case 1:
-                                    Console.WriteLine("Speichere");
-                                    xml1.Save(dateiName);
-                                    break;
-                                case 2 :
-                                    Console.WriteLine("Lösche alte fertige xml");
-                                    Console.WriteLine("Speichere fertige xml");
-                                    File.Delete(_clientName + ".xml");
-                                    File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                                    break;
-                                case 3:
-                                    Console.WriteLine("Speichere fertige xml");
-                                    File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                        case 1:
+                            Console.WriteLine("Speichere");
+                            xml1.Save(dateiName);
+                            break;
+                        case 2:
+                            Console.WriteLine("Lösche alte fertige xml");
+                            Console.WriteLine("Speichere fertige xml");
+                            File.Delete(_clientName + ".xml");
+                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                            break;
+                        case 3:
+                            Console.WriteLine("Speichere fertige xml");
+                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
 
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                        }
-                        catch(System.IO.IOException e)
-                        {
-                            done = false;
-                            Console.WriteLine("Fehler: war in gesicherten bereich , versuche nochmal");
-                        }
-                        finally
-                        {
-                            done = true;
-                            Monitor.Exit(dateiName);
-                        }
-                        
+                            break;
+                        default:
+                            break;
                     }
+
                 }
-                else
+                catch (System.IO.IOException e)
                 {
-                    Console.WriteLine("Speichern nicht möglich da schon jemand drinne ist versuche nochmal");
-                    done = false;
+                   
+                    Console.WriteLine(e);
                 }
-            } while(!done);
+                finally
+                {
+                    Monitor.Exit(dateiName);
+                }
+                        
+                }
+             
+            
         }
         #endregion
     }
-}
+
