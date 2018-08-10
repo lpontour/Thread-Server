@@ -86,7 +86,7 @@ namespace Server
                 // ...wenn eine Verbindungsanfrage besteht...
                 if (listenerServer.Pending())
                 {
-                    Console.WriteLine("pending");
+                    //Console.WriteLine("pending");
                     // ...und die Semaphore noch nicht blockiert wird,...
                     if (!semaLock)
                     {
@@ -101,10 +101,12 @@ namespace Server
                             
 								Console.WriteLine("neuer thread neu");
                                 Thread.CurrentThread.IsBackground = true;
-                                // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
-                                semaLock = semaphore.WaitOne();
-                                // Annehmen der Socketverbindung
-                                tcpClient = listenerServer.AcceptTcpClient();
+								// Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
+								Thread.Sleep(70);
+								semaLock = semaphore.WaitOne();
+								Thread.Sleep(70);
+								// Annehmen der Socketverbindung
+								tcpClient = listenerServer.AcceptTcpClient();
                                 Console.WriteLine("Verbindung entgegengenommen.");
 
                                 // Übergeben des NetworkStreams
@@ -115,6 +117,7 @@ namespace Server
                                     formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
+									Thread.Sleep(70);
 									semaphore.Release();
 									Thread.Sleep(70);
 								}

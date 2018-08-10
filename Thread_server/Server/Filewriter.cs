@@ -59,9 +59,18 @@ namespace Server
                 }
                 else if(File.Exists(_clientName + "_NC.xml")==false)
                 {
-                    Console.WriteLine("Speichere nicht fertige xml erstmalig");
-                    Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml",1));
-                    savinThread.Start();
+                    if (!CheckForRoot(_xml))
+                        {
+                        Console.WriteLine("Speichere nicht fertige xml erstmalig");
+                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
+                        savinThread.Start();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Achtung das root element ist als erstes angekommen, datei wird leer fertig gespeichert");
+                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + ".xml", 1));
+                        savinThread.Start();
+                    }
                 }
             }
             else
