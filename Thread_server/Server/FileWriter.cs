@@ -88,18 +88,19 @@ namespace Server
             XmlDocument oldXml = new XmlDocument();
             oldXml.Load (_clientName + "_NC.xml");
             XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
-			//XmlNode oldXmlDocNode;
+			XmlNode oldXmlDocNode;
 
-			//oldXmlDocNode = oldXml.DocumentElement.FirstChild;
+			oldXmlDocNode = oldXml.DocumentElement.FirstChild;
+            if (oldXmlDocNode.Attributes[0].Value != recievedXmlDocNode.Attributes[0].Value)
+            {
+                XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
+                oldXml.DocumentElement.AppendChild(xmlImport);
 
-            XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
-            oldXml.DocumentElement.AppendChild(xmlImport);
-                       
-                
 
-            Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml",1));
-            savinThread.Start();
-       
+
+                Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml", 1));
+                savinThread.Start();
+            }
         }
 
         private void SaveXml(XmlDocument xml1,string dateiName,int mode)
@@ -107,7 +108,7 @@ namespace Server
          
          if((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
 
-            Monitor.Enter(dateiName);
+           Monitor.Enter(dateiName);
                 
                 try
                 {
