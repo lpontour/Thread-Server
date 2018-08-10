@@ -33,7 +33,7 @@ namespace Server
             {
                 _xml = xmlDocument;
                 _clientName = _xml.DocumentElement.Attributes[0].Value;
-                if (!CheckForRoot(_xml))
+                if(!CheckForRoot(_xml))
                 {
                     Console.WriteLine("Ordner Angekommen:" + _xml.DocumentElement.FirstChild.Attributes[0].Value);
                 }
@@ -43,10 +43,9 @@ namespace Server
                     {
                         Console.WriteLine("Füge neue informationen hinzu");
                         AppendXml(_xml);
-                    }
-                    else if (CheckForRoot(_xml))
+                    }else if(CheckForRoot(_xml))
                     {
-                        if (File.Exists(_clientName + ".xml"))
+                        if(File.Exists(_clientName+".xml"))
                         {
                             Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 2));
                             savinThread.Start();
@@ -58,10 +57,10 @@ namespace Server
                         }
                     }
                 }
-                else if (File.Exists(_clientName + "_NC.xml") == false)
+                else if(File.Exists(_clientName + "_NC.xml")==false)
                 {
                     if (!CheckForRoot(_xml))
-                    {
+                        {
                         Console.WriteLine("Speichere nicht fertige xml erstmalig");
                         Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
                         savinThread.Start();
@@ -88,7 +87,7 @@ namespace Server
             else
             { return true; }
 
-
+         
         }
 
 
@@ -96,13 +95,13 @@ namespace Server
         private void AppendXml(XmlDocument xml1)
         {
             XmlDocument oldXml = new XmlDocument();
-            oldXml.Load(_clientName + "_NC.xml");
+            oldXml.Load (_clientName + "_NC.xml");
             XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
-            XmlNode oldXmlDocNode;
+			XmlNode oldXmlDocNode;
             bool dopplung = false;
-            oldXmlDocNode = oldXml.DocumentElement.FirstChild;
+			oldXmlDocNode = oldXml.DocumentElement.FirstChild;
             XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
-
+            
 
             foreach (XmlNode node in oldXml.DocumentElement)
             {
@@ -118,66 +117,57 @@ namespace Server
             }
 
             Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml", 1));
-            savinThread.Start();
-
+                savinThread.Start();
+            
         }
 
-        private void SaveXml(XmlDocument xml1, string dateiName, int mode)
+        private void SaveXml(XmlDocument xml1,string dateiName,int mode)
         {
-            bool fertig = false;
-            if ((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
+            bool fertig=false;
+         if((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
 
-            Monitor.Enter(dateiName);
-
-            try
-            {
+           Monitor.Enter(dateiName);
+          
+                try
+                {
                 do
                 {
-                    if (IsFileLocked(new FileInfo(dateiName)) == false)
+                    switch (mode)
                     {
-                        switch (mode)
-                        {
-
-                            case 1:
-                                Console.WriteLine("Speichere");
-                                xml1.Save(dateiName);
-                                fertig = true;
-                                break;
-                            case 2:
-                                Console.WriteLine("Lösche alte fertige xml");
-                                Console.WriteLine("Speichere fertige xml");
-                                File.Delete(_clientName + ".xml");
-                                File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                                fertig = true;
-                                break;
-
-                            case 3:
-                                Console.WriteLine("Speichere fertige xml");
-                                File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                                fertig = true;
-                                break;
-                            default:
-                                break;
-
-                        }
-                    }
-                    else
-                    {
-                        fertig = false;
+                        case 1:
+                            Console.WriteLine("Speichere");
+                            xml1.Save(dateiName);
+                            fertig = true;
+                            break;
+                        case 2:
+                            Console.WriteLine("Lösche alte fertige xml");
+                            Console.WriteLine("Speichere fertige xml");
+                            File.Delete(_clientName + ".xml");
+                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                            fertig = true;
+                            break;
+                            
+                        case 3:
+                            Console.WriteLine("Speichere fertige xml");
+                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                            fertig = true;
+                            break;
+                        default:
+                            break;
                     }
                 } while (!fertig);
-            }
-            catch (System.IO.IOException e)
-            {
-
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                Monitor.Exit(dateiName);
-            }
-
-        }
+                }
+                catch (System.IO.IOException e)
+                {
+                   
+                    Console.WriteLine(e);
+                }
+                finally
+                {
+                    Monitor.Exit(dateiName);
+                }
+                        
+                }
 
         public static bool IsFileLocked(FileInfo file)
         {
@@ -201,6 +191,6 @@ namespace Server
     }
 
 
-    #endregion
-}
+        #endregion
+    }
 
