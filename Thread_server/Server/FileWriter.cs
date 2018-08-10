@@ -123,34 +123,39 @@ namespace Server
 
         private void SaveXml(XmlDocument xml1,string dateiName,int mode)
         {
-         
+            bool fertig=false;
          if((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
 
            Monitor.Enter(dateiName);
-                
+          
                 try
+                {
+                do
                 {
                     switch (mode)
                     {
                         case 1:
                             Console.WriteLine("Speichere");
                             xml1.Save(dateiName);
+                            fertig = true;
                             break;
                         case 2:
                             Console.WriteLine("Lösche alte fertige xml");
                             Console.WriteLine("Speichere fertige xml");
                             File.Delete(_clientName + ".xml");
                             File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                            fertig = true;
                             break;
+                            
                         case 3:
                             Console.WriteLine("Speichere fertige xml");
                             File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-
+                            fertig = true;
                             break;
                         default:
                             break;
                     }
-
+                } while (!fertig);
                 }
                 catch (System.IO.IOException e)
                 {
@@ -163,9 +168,29 @@ namespace Server
                 }
                         
                 }
-             
-            
+
+        public static bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+            return false;
         }
+    }
+
+
         #endregion
     }
 
