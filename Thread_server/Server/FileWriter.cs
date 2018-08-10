@@ -90,18 +90,30 @@ namespace Server
             XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
 			XmlNode oldXmlDocNode;
             bool dopplung = false;
+            bool fertig = false;
 			oldXmlDocNode = oldXml.DocumentElement.FirstChild;
             XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
-            
 
-            foreach (XmlNode node in oldXml.DocumentElement)
+            do
             {
-                if (node.Attributes[0].Value == recievedXmlDocNode.Attributes[0].Value)
+                if(oldXmlDocNode.Attributes[0].Value==recievedXmlDocNode.Attributes[0].Value)
                 {
-                    oldXml.ReplaceChild(xmlImport, node);
+                    oldXml.DocumentElement.ReplaceChild(xmlImport, oldXmlDocNode);
+                    fertig = true;
                     dopplung = true;
+                    break;
                 }
-            }
+                if (oldXmlDocNode.NextSibling != null)
+                {
+                    oldXmlDocNode = oldXmlDocNode.NextSibling;
+                    fertig = false;
+                }else if(oldXmlDocNode.NextSibling==null)
+                {
+                    fertig = true;
+                    break;
+                }
+            } while (!fertig);
+
             if (!dopplung)
             {
                 oldXml.DocumentElement.AppendChild(xmlImport);
