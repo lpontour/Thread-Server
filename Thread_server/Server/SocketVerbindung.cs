@@ -96,13 +96,16 @@ namespace Server
                             Console.WriteLine("try");
                             // ...wird ein neuer Thread erstellt 
                             new Thread(() =>
-                            {
+							{                                
+								// Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
+								semaLock = semaphore.WaitOne();
+
 								XmlDocument xml = new XmlDocument();
                             
 								Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
                                 Thread.CurrentThread.IsBackground = true;
                                 // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
-                                semaLock = semaphore.WaitOne();
+                                //semaLock = semaphore.WaitOne();
                                 // Annehmen der Socketverbindung
                                 tcpClient = listenerServer.AcceptTcpClient();
                                 Console.WriteLine("Verbindung entgegengenommen.");
@@ -115,9 +118,10 @@ namespace Server
                                     formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
-									semaphore.Release();
+									//semaphore.Release();
 								}
-                            }).Start();
+								semaphore.Release();
+							}).Start();
                         }
                         catch (Exception exception)
                         {
