@@ -99,7 +99,7 @@ namespace Server
                             {
 								XmlDocument xml = new XmlDocument();
                             
-								Console.WriteLine("neuer thread neuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+								Console.WriteLine("neuer thread neu");
                                 Thread.CurrentThread.IsBackground = true;
                                 // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
                                 semaLock = semaphore.WaitOne();
@@ -116,6 +116,7 @@ namespace Server
 
 									// Release inkrementiert die Semaphore
 									semaphore.Release();
+									Thread.Sleep(70);
 								}
                             }).Start();
                         }
