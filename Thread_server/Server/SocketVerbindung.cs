@@ -69,7 +69,6 @@ namespace Server
             Console.WriteLine("Starten");
 
             Console.WriteLine("Verbindungen werden gesucht.");
-            Console.ReadKey();
 
             Console.WriteLine("locken");
             // Erzeugen der Semaphore...
