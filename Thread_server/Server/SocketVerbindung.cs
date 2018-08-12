@@ -19,16 +19,15 @@ namespace Server
         private IPAddress ipAdresse;
         private TcpClient tcpClient;
         private IFormatierer formartierer = new FactoryFormate();
-        TcpListener listenerServer;
+        TcpListener listenerServer; 
         bool semaLock = false;
-
-
         #endregion
 
         #region ctor
         internal SocketVerbindung()
         {
             // Ermitteln der maximalen Verbindungen durch Konsoleneingabe
+            // Variable "erlaubt" lässt Dialog solange erscheinen, bis erlaubter Wert eingegeben
             bool erlaubt = false;
             while(erlaubt == false)
             {
@@ -63,56 +62,48 @@ namespace Server
                 erlaubt = int.TryParse(eingabe, out port);
             }
 
+            // Starten der Suche nach Verbindungen mit TCPListener
             listenerServer = new TcpListener(ipAdresse, port);
-
             listenerServer.Start();
-            Console.WriteLine("Starten");
-
             Console.WriteLine("Verbindungen werden gesucht.");
 
-            Console.WriteLine("locken");
-            // Erzeugen der Semaphore...
+            // Erzeugen der Semaphore
             Semaphore semaphore = new Semaphore(maxVerbindungen, maxVerbindungen);
-            Console.WriteLine("erstellen");
 
             // Dauerhaftes warten auf Verbindungsanfragen des Clients
             while (true)
             {
-                // Initialisieren und starten des TCPListeners
 
-                // Variable zum Blockieren des kritischen Codes
-
-                // ...wenn eine Verbindungsanfrage besteht...
+                // Wenn eine Verbindungsanfrage besteht...
                 if (listenerServer.Pending())
                 {
-                    //Console.WriteLine("pending");
-                    // ...und die Semaphore noch nicht blockiert wird,...
+                    // ...und die Semaphore noch nicht blockiert ist,...
                     if (!semaLock)
                     {
                         Console.WriteLine("semalock");
                         try
                         {
-                            Console.WriteLine("try");
                             // ...wird ein neuer Thread erstellt 
                             new Thread(() =>
                             {
 								XmlDocument xml = new XmlDocument();
-                            
-								Console.WriteLine("neuer thread neu");
                                 Thread.CurrentThread.IsBackground = true;
-								// Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
+                                // Sleep zum Entlasten
 								Thread.Sleep(70);
-								semaLock = semaphore.WaitOne();
+                                // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
+                                semaLock = semaphore.WaitOne();
 								Thread.Sleep(70);
 								// Annehmen der Socketverbindung
 								tcpClient = listenerServer.AcceptTcpClient();
                                 Console.WriteLine("Verbindung entgegengenommen.");
 
-                                // Übergeben des NetworkStreams
+                                // Übergeben des XML-Schnippsels
                                 NetworkStream stream = tcpClient.GetStream();
+                                // Wenn lesbare Daten verfügbar sind...
 								if(stream.DataAvailable)
 								{
-									xml.LoadXml(new StreamReader(stream).ReadToEnd());//XmlReader.Create(stream));
+                                    //...werden diese zum Formatieren weitergegeben
+									xml.LoadXml(new StreamReader(stream).ReadToEnd());
                                     formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
