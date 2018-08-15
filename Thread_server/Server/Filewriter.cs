@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Server
         //Variablen
         protected XmlDocument _xml;
         protected string _clientName;
+        private static ConcurrentDictionary<string, object> _keyDict = new ConcurrentDictionary<string, object>();
         #endregion
 
         #region ctor
@@ -95,9 +97,21 @@ namespace Server
         //Fügt die gegebene XML an eine Vorhandene XML eines Clienten und Speichert diese
         private void AppendXml(XmlDocument xml1)
         {
+            bool geladen =false;
             XmlDocument oldXml = new XmlDocument();
-            oldXml.Load (_clientName + "_NC.xml");
-            
+            do
+            {
+                if (IsFileLocked(new FileInfo(_clientName + "_NC.xml"))==false)
+                    {
+                    oldXml.Load(_clientName + "_NC.xml");
+                    geladen = true;
+                    }
+                else
+                {
+                    geladen = false;
+                    Thread.Sleep(10);
+                }
+            } while(!geladen);
             XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
 			XmlNode oldXmlDocNode;
             bool dopplung = false;
@@ -122,25 +136,70 @@ namespace Server
                 savinThread.Start();
             
         }
-
-        private void SaveXml(XmlDocument xml1,string dateiName,int mode)
+        private XmlDocument LoadXml(string dateiName)
         {
-            bool fertig=false;
-         if((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
-
-           Monitor.Enter(dateiName);
-          
+            object thisThreadSyncObject = new object();
+            XmlDocument xmldoc=new XmlDocument();
+            lock (thisThreadSyncObject)
+            {
                 try
                 {
-                do
-                {
-                    if (!(IsFileLocked(new FileInfo(dateiName))))
+                    for (; ; )
                     {
+                        object runningThreadSyncObject = _keyDict.GetOrAdd(dateiName, thisThreadSyncObject);
+                        if (runningThreadSyncObject == thisThreadSyncObject)
+                            break;
+
+                        lock (runningThreadSyncObject)
+                        {
+                            // Wait for the currently processing thread to finish and try inserting into the dictionary again.
+                        }
+                    }
+
+                    xmldoc.Load(_clientName + "_NC.xml");
+                    return xmldoc;
+
+                }
+                finally
+                {
+                    // Remove the key from the lock dictionary
+                    object dummy;
+                    _keyDict.TryRemove(dateiName, out dummy);
+                }
+            }
+            }
+        private void SaveXml(XmlDocument xml1, string dateiName, int mode)
+        {
+            bool fertig = false;
+            object thisThreadSyncObject = new object();
+
+            if ((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
+
+            lock(thisThreadSyncObject);
+            {
+                try
+                {
+                    for (; ; )
+                    {
+                        object runningThreadSyncObject = _keyDict.GetOrAdd(dateiName, thisThreadSyncObject);
+                        if (runningThreadSyncObject == thisThreadSyncObject)
+                            break;
+
+                        lock (runningThreadSyncObject)
+                        {
+                            // Wait for the currently processing thread to finish and try inserting into the dictionary again.
+                        }
+                    }
+
+                    try
+                    {
+
                         switch (mode)
                         {
                             case 1:
                                 Console.WriteLine("Speichere");
                                 xml1.Save(dateiName);
+
                                 fertig = true;
                                 break;
                             case 2:
@@ -159,26 +218,28 @@ namespace Server
                             default:
                                 break;
                         }
+
                     }
-                    else
+                    catch (System.IO.IOException e)
                     {
-                        fertig = false;
-                        Thread.Sleep(50);
+
+                        Console.WriteLine(e);
                     }
-                } while (!fertig);
-                }
-                catch (System.IO.IOException e)
-                {
-                   
-                    Console.WriteLine(e);
+
                 }
                 finally
                 {
-                    Monitor.Exit(dateiName);
-                }
-                        
+                    // Remove the key from the lock dictionary
+                    object dummy;
+                    _keyDict.TryRemove(dateiName, out dummy);
+
                 }
 
+
+
+
+            }
+        }
         public static bool IsFileLocked(FileInfo file)
         {
             FileStream stream = null;
