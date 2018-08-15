@@ -108,8 +108,30 @@ namespace Server
 								// Wenn lesbare Daten verfügbar sind...
 								if (stream.DataAvailable)
 								{
+									//////////////
+									// Examples for CanRead, Read, and DataAvailable. 
+									// Check to see if this NetworkStream is readable. 
+									//string str;
+									//{
+									//	byte[] data = new byte[1024];
+									//	using (MemoryStream ms = new MemoryStream())
+									//	{
+
+									//		int numBytesRead;
+									//		while ((numBytesRead = stream.Read(data, 0, data.Length)) > 0)
+									//		{
+									//			ms.Write(data, 0, numBytesRead);
+
+
+									//		}
+									//		str = ms.ToString(); //Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
+									//	}
+									//}
+
+									//xml.LoadXml(str);
+									////////////////
+
 									//...werden diese zum Formatieren weitergegeben
-									Thread.Sleep(100);
 									xml.LoadXml(new StreamReader(stream).ReadToEnd());
 									formartierer.Formatieren(xml, 1);
 
