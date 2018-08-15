@@ -35,7 +35,7 @@ namespace Server
             {
                 _xml = xmlDocument;
                 _clientName = _xml.DocumentElement.Attributes[0].Value;
-                if(!CheckForRoot(_xml))
+                if (!CheckForRoot(_xml))
                 {
                     Console.WriteLine("Ordner Angekommen:" + _xml.DocumentElement.FirstChild.Attributes[0].Value);
                 }
@@ -45,9 +45,12 @@ namespace Server
                     {
                         Console.WriteLine("Füge neue informationen hinzu");
                         AppendXml(_xml);
-                    }else if(CheckForRoot(_xml))
+                        Thread appendingThread = new Thread(() => AppendXml(_xml));
+                        appendingThread.Start();
+                    }
+                    else if (CheckForRoot(_xml))
                     {
-                        if(File.Exists(_clientName+".xml"))
+                        if (File.Exists(_clientName + ".xml"))
                         {
                             Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 2));
                             savinThread.Start();
@@ -59,14 +62,14 @@ namespace Server
                         }
                     }
                 }
-                else if(File.Exists(_clientName + "_NC.xml")==false)
+                else if (File.Exists(_clientName + "_NC.xml") == false)
                 {
                     if (!CheckForRoot(_xml))
-                        {
+                    {
                         Console.WriteLine("Speichere nicht fertige xml erstmalig");
                         _xml.Save(_clientName + "_NC.xml");
-                       // Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
-                       // savinThread.Start();
+                        // Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
+                        // savinThread.Start();
                     }
                     else
                     {
@@ -90,56 +93,18 @@ namespace Server
             else
             { return true; }
 
-         
+
         }
 
 
         //Fügt die gegebene XML an eine Vorhandene XML eines Clienten und Speichert diese
         private void AppendXml(XmlDocument xml1)
         {
-            bool geladen =false;
+
             XmlDocument oldXml = new XmlDocument();
-            do
-            {
-                if (IsFileLocked(new FileInfo(_clientName + "_NC.xml"))==false)
-                    {
-                    oldXml.Load(_clientName + "_NC.xml");
-                    geladen = true;
-                    }
-                else
-                {
-                    geladen = false;
-                    Thread.Sleep(10);
-                }
-            } while(!geladen);
-            XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
-			XmlNode oldXmlDocNode;
-            bool dopplung = false;
-			oldXmlDocNode = oldXml.DocumentElement.FirstChild;
-            XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
-            
-
-            foreach (XmlNode node in oldXml.DocumentElement)
-            {
-                if (node.Attributes[0].Value == recievedXmlDocNode.Attributes[0].Value)
-                {
-                    oldXml.DocumentElement.ReplaceChild(xmlImport, node);
-                    dopplung = true;
-                }
-            }
-            if (!dopplung)
-            {
-                oldXml.DocumentElement.AppendChild(xmlImport);
-            }
-
-            Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml", 1));
-                savinThread.Start();
-            
-        }
-        private XmlDocument LoadXml(string dateiName)
-        {
+            string dateiName = _clientName + "_NC.xml";
             object thisThreadSyncObject = new object();
-            XmlDocument xmldoc=new XmlDocument();
+
             lock (thisThreadSyncObject)
             {
                 try
@@ -156,8 +121,7 @@ namespace Server
                         }
                     }
 
-                    xmldoc.Load(_clientName + "_NC.xml");
-                    return xmldoc;
+                    oldXml.Load(_clientName + "_NC.xml");
 
                 }
                 finally
@@ -167,7 +131,33 @@ namespace Server
                     _keyDict.TryRemove(dateiName, out dummy);
                 }
             }
+
+
+            XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
+            XmlNode oldXmlDocNode;
+            bool dopplung = false;
+            oldXmlDocNode = oldXml.DocumentElement.FirstChild;
+            XmlNode xmlImport = oldXml.ImportNode(recievedXmlDocNode, true);
+
+
+            foreach (XmlNode node in oldXml.DocumentElement)
+            {
+                if (node.Attributes[0].Value == recievedXmlDocNode.Attributes[0].Value)
+                {
+                    oldXml.DocumentElement.ReplaceChild(xmlImport, node);
+                    dopplung = true;
+                }
             }
+            if (!dopplung)
+            {
+                oldXml.DocumentElement.AppendChild(xmlImport);
+            }
+
+            Thread savinThread = new Thread(() => SaveXml(oldXml, _clientName + "_NC.xml", 1));
+            savinThread.Start();
+
+        }
+
         private void SaveXml(XmlDocument xml1, string dateiName, int mode)
         {
             bool fertig = false;
@@ -175,7 +165,7 @@ namespace Server
 
             if ((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
 
-            lock(thisThreadSyncObject);
+            lock (thisThreadSyncObject) ;
             {
                 try
                 {
@@ -262,6 +252,6 @@ namespace Server
     }
 
 
-        #endregion
-    }
+    #endregion
+}
 
