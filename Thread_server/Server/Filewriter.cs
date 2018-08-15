@@ -62,8 +62,9 @@ namespace Server
                     if (!CheckForRoot(_xml))
                         {
                         Console.WriteLine("Speichere nicht fertige xml erstmalig");
-                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
-                        savinThread.Start();
+                        _xml.Save(_clientName + "_NC.xml");
+                       // Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
+                       // savinThread.Start();
                     }
                     else
                     {
@@ -162,6 +163,7 @@ namespace Server
                     else
                     {
                         fertig = false;
+                        Thread.Sleep(50);
                     }
                 } while (!fertig);
                 }
