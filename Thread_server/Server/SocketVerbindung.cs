@@ -92,12 +92,6 @@ namespace Server
 							{
 								XmlDocument xml = new XmlDocument();
 								Thread.CurrentThread.IsBackground = true;
-								// Sleep zum Entlasten
-
-								//Thread.Sleep(70);
-								// Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
-								//semaLock = semaphore.WaitOne();
-								//Thread.Sleep(70);
 
 								// Annehmen der Socketverbindung
 								tcpClient = listenerServer.AcceptTcpClient();
@@ -105,41 +99,12 @@ namespace Server
 
 								// Übergeben des XML-Schnippsels
 								NetworkStream stream = tcpClient.GetStream();
+
 								// Wenn lesbare Daten verfügbar sind...
 								if (stream.DataAvailable)
 								{
-									//////////////
-									// Examples for CanRead, Read, and DataAvailable. 
-									// Check to see if this NetworkStream is readable. 
-									//string str;
-									//{
-									//	byte[] data = new byte[1024];
-									//	using (MemoryStream ms = new MemoryStream())
-									//	{
-
-									//		int numBytesRead;
-									//		while ((numBytesRead = stream.Read(data, 0, data.Length)) > 0)
-									//		{
-									//			ms.Write(data, 0, numBytesRead);
-
-
-									//		}
-									//		str = ms.ToString(); //Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
-									//	}
-									//}
-
-									//xml.LoadXml(str);
-									////////////////
-
-									//...werden diese zum Formatieren weitergegeben
 									xml.LoadXml(new StreamReader(stream).ReadToEnd());
-									//Thread.Sleep(500);
 									formartierer.Formatieren(xml, 1);
-
-									// Release inkrementiert die Semaphore
-									//Thread.Sleep(70);
-									//semaphore.Release();
-									//Thread.Sleep(70);
 								}
 							}).Start();
 						}
