@@ -103,7 +103,28 @@ namespace Server
 								// Wenn lesbare Daten verfügbar sind...
 								if (stream.DataAvailable)
 								{
-									xml.LoadXml(new StreamReader(stream).ReadToEnd());
+									///////////////
+									string str;
+									using (stream)
+									{
+										byte[] data = new byte[1024];
+										using (MemoryStream ms = new MemoryStream())
+										{
+
+											int numBytesRead;
+											while ((numBytesRead = stream.Read(data, 0, data.Length)) > 0)
+											{
+												ms.Write(data, 0, numBytesRead);
+											}
+											str = Encoding.ASCII.GetString(ms.ToArray(), 0, (int)ms.Length);
+										}
+									}
+
+									Console.WriteLine(str);
+									Console.ReadKey();
+									/////////////////
+
+									xml.LoadXml(str);
 									formartierer.Formatieren(xml, 1);
 								}
 							}).Start();
