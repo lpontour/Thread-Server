@@ -133,7 +133,7 @@ namespace Server
 
 									//...werden diese zum Formatieren weitergegeben
 									xml.LoadXml(new StreamReader(stream).ReadToEnd());
-									Thread.Sleep(500);
+									//Thread.Sleep(500);
 									formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
