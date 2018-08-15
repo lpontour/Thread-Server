@@ -116,10 +116,13 @@ namespace Server
 											{
 												ms.Write(data, 0, numBytesRead);
 											}
-											str = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
+
+											str = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);											
 										}
 									}
 									///////////////////////////////////////////////////////////////
+									str = str.TrimStart(new char[] { '?' });
+									Console.WriteLine(str);
 									xml.LoadXml(str);
 									formartierer.Formatieren(xml, 1);
 								}
