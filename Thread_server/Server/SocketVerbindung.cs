@@ -106,7 +106,7 @@ namespace Server
 								// Übergeben des XML-Schnippsels
 								NetworkStream stream = tcpClient.GetStream();
 								// Wenn lesbare Daten verfügbar sind...
-								if (stream.CanRead)
+								if (stream.DataAvailable)
 								{
 									//////////////
 									// Examples for CanRead, Read, and DataAvailable. 
@@ -133,7 +133,7 @@ namespace Server
 
 									//...werden diese zum Formatieren weitergegeben
 									xml.LoadXml(new StreamReader(stream).ReadToEnd());
-									Thread.Sleep(100);
+									Thread.Sleep(500);
 									formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
