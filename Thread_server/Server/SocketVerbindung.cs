@@ -78,46 +78,58 @@ namespace Server
                 if (listenerServer.Pending())
                 {
                     // ...und die Semaphore noch nicht blockiert ist,...
-                    if (!semaLock)
-                    {
+
+                    //if (!semaLock)
+                    //{
                         Console.WriteLine("semalock");
-                        try
-                        {
-                            // ...wird ein neuer Thread erstellt 
-                            new Thread(() =>
-                            {
+					try
+					{
+						semaphore.WaitOne();
+						// ...wird ein neuer Thread erstellt 
+						try
+						{
+							new Thread(() =>
+							{
 								XmlDocument xml = new XmlDocument();
-                                Thread.CurrentThread.IsBackground = true;
-                                // Sleep zum Entlasten
-								Thread.Sleep(70);
-                                // Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
-                                semaLock = semaphore.WaitOne();
-								Thread.Sleep(70);
+								Thread.CurrentThread.IsBackground = true;
+								// Sleep zum Entlasten
+
+								//Thread.Sleep(70);
+								// Blockieren ist abhängig vom Status der Semaphore + WaitOne dekrementiert die Semaphore
+								//semaLock = semaphore.WaitOne();
+								//Thread.Sleep(70);
+
 								// Annehmen der Socketverbindung
 								tcpClient = listenerServer.AcceptTcpClient();
-                                Console.WriteLine("Verbindung entgegengenommen.");
+								Console.WriteLine("Verbindung entgegengenommen.");
 
-                                // Übergeben des XML-Schnippsels
-                                NetworkStream stream = tcpClient.GetStream();
-                                // Wenn lesbare Daten verfügbar sind...
-								if(stream.DataAvailable)
+								// Übergeben des XML-Schnippsels
+								NetworkStream stream = tcpClient.GetStream();
+								// Wenn lesbare Daten verfügbar sind...
+								if (stream.DataAvailable)
 								{
-                                    //...werden diese zum Formatieren weitergegeben
+									//...werden diese zum Formatieren weitergegeben
+									Thread.Sleep(100);
 									xml.LoadXml(new StreamReader(stream).ReadToEnd());
-                                    formartierer.Formatieren(xml, 1);
+									formartierer.Formatieren(xml, 1);
 
 									// Release inkrementiert die Semaphore
-									Thread.Sleep(70);
-									semaphore.Release();
-									Thread.Sleep(70);
+									//Thread.Sleep(70);
+									//semaphore.Release();
+									//Thread.Sleep(70);
 								}
-                            }).Start();
-                        }
-                        catch (Exception exception)
-                        {
-                            throw new Exception("Fehler bei Verbindung", exception);
-                        }
-                    }
+							}).Start();
+						}
+						catch (Exception exception)
+						{
+							throw new Exception("Fehler bei Verbindung", exception);
+						}
+					}
+					finally
+					{
+						semaphore.Release();
+					}
+                    //}
                 }
             }
         }

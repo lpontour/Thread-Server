@@ -96,6 +96,7 @@ namespace Server
         {
             XmlDocument oldXml = new XmlDocument();
             oldXml.Load (_clientName + "_NC.xml");
+            
             XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
 			XmlNode oldXmlDocNode;
             bool dopplung = false;
@@ -132,28 +133,35 @@ namespace Server
                 {
                 do
                 {
-                    switch (mode)
+                    if (!(IsFileLocked(new FileInfo(dateiName))))
                     {
-                        case 1:
-                            Console.WriteLine("Speichere");
-                            xml1.Save(dateiName);
-                            fertig = true;
-                            break;
-                        case 2:
-                            Console.WriteLine("Lösche alte fertige xml");
-                            Console.WriteLine("Speichere fertige xml");
-                            File.Delete(_clientName + ".xml");
-                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                            fertig = true;
-                            break;
-                            
-                        case 3:
-                            Console.WriteLine("Speichere fertige xml");
-                            File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                            fertig = true;
-                            break;
-                        default:
-                            break;
+                        switch (mode)
+                        {
+                            case 1:
+                                Console.WriteLine("Speichere");
+                                xml1.Save(dateiName);
+                                fertig = true;
+                                break;
+                            case 2:
+                                Console.WriteLine("Lösche alte fertige xml");
+                                Console.WriteLine("Speichere fertige xml");
+                                File.Delete(_clientName + ".xml");
+                                File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                                fertig = true;
+                                break;
+
+                            case 3:
+                                Console.WriteLine("Speichere fertige xml");
+                                File.Move(_clientName + "_NC.xml", _clientName + ".xml");
+                                fertig = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        fertig = false;
                     }
                 } while (!fertig);
                 }
