@@ -107,7 +107,7 @@ namespace Server
 									string str;
 									//using (stream)
 									{
-										byte[] data = new byte[4096];
+										byte[] data = new byte[1024];
 										using (MemoryStream ms = new MemoryStream())
 										{
 
@@ -121,7 +121,6 @@ namespace Server
 										}
 									}
 									///////////////////////////////////////////////////////////////
-									str = str.TrimStart(new char[] { '?' });
 									Console.WriteLine(str);
 									xml.LoadXml(str);
 									formartierer.Formatieren(xml, 1);
