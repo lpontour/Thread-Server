@@ -48,13 +48,13 @@ namespace Server
                     {
                         if (File.Exists(_clientName + ".xml"))
                         {
-                            Thread.Sleep(20);
+                           
                             Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 2));
                             savinThread.Start();
                         }
                         else
                         {
-                            Thread.Sleep(20);
+                            
                             Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 3));
                             savinThread.Start();
                         }
@@ -70,7 +70,7 @@ namespace Server
                     }
                     else
                     {
-                        Thread.Sleep(20);
+                        
                         Console.WriteLine("Achtung das root element ist als erstes angekommen, datei wird leer fertig gespeichert");
                         Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + ".xml", 1));
                         savinThread.Start();
@@ -156,7 +156,10 @@ namespace Server
 
         private void SaveXml(XmlDocument xml1, string dateiName, int mode)
         {
-            bool fertig = false;
+            if(CheckForRoot(xml1))
+            {
+                Thread.Sleep(50);
+            }
             object thisThreadSyncObject = new object();
 
             if ((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
@@ -185,21 +188,17 @@ namespace Server
                             case 1:
                                 Console.WriteLine("Speichere");
                                 xml1.Save(dateiName);
-
-                                fertig = true;
                                 break;
                             case 2:
                                 Console.WriteLine("Lösche alte fertige xml");
                                 Console.WriteLine("Speichere fertige xml");
                                 File.Delete(_clientName + ".xml");
                                 File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                                fertig = true;
                                 break;
 
                             case 3:
                                 Console.WriteLine("Speichere fertige xml");
                                 File.Move(_clientName + "_NC.xml", _clientName + ".xml");
-                                fertig = true;
                                 break;
                             default:
                                 break;
