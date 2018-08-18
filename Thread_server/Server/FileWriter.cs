@@ -62,8 +62,9 @@ namespace Server
                 {
                     if (!CheckForRoot(_xml))
                     {
-                        Console.WriteLine("Speichere nicht fertige xml erstmalig");
-                        _xml.Save(_clientName + "_NC.xml");
+                        Console.WriteLine("versuche:Speichere nicht fertige xml erstmalig");
+                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + ".xml", 1));
+                        savinThread.Start();
                     }
                     else
                     {
@@ -82,7 +83,7 @@ namespace Server
         //Überprüft ob bei den gegebenen Dokument die Rootwurzel Leer ist oder nicht
         private bool CheckForRoot(XmlDocument xml)
         {
-           if ((!xml.DocumentElement.HasChildNodes)||xml.DocumentElement.FirstChild.Name== "datei")
+            if ((!xml.DocumentElement.HasChildNodes) || (xml.DocumentElement.FirstChild.Name == "datei"))
             { return true; }
             else
             { return false; }
@@ -157,7 +158,7 @@ namespace Server
 
             if ((mode == 2) || (mode == 3)) { Thread.Sleep(500); }
 
-            lock (thisThreadSyncObject) ;
+            lock (thisThreadSyncObject)
             {
                 try
                 {
