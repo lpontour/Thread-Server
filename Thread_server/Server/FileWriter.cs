@@ -82,7 +82,7 @@ namespace Server
         //Überprüft ob bei den gegebenen Dokument die Rootwurzel Leer ist oder nicht
         private bool CheckForRoot(XmlDocument xml)
         {
-           if ((!xml.DocumentElement.HasChildNodes)||xml.DocumentElement.FirstChild.Name== "Type")
+           if ((!xml.DocumentElement.HasChildNodes)||xml.DocumentElement.FirstChild.Name== "datei")
             { return true; }
             else
             { return false; }
