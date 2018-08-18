@@ -123,7 +123,7 @@ namespace Server
 									///////////////////////////////////////////////////////////////
 									Console.WriteLine(str);
 									xml.LoadXml(str);
-									if (xml.DocumentElement.HasChildNodes)
+									if (!xml.DocumentElement.HasChildNodes)
 									{
 										Console.WriteLine("Root empfangen");
 									}
