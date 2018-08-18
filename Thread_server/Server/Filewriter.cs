@@ -35,10 +35,6 @@ namespace Server
             {
                 _xml = xmlDocument;
                 _clientName = _xml.DocumentElement.Attributes[0].Value;
-                if (!CheckForRoot(_xml))
-                {
-                    Console.WriteLine("Ordner Angekommen:" + _xml.DocumentElement.FirstChild.Attributes[0].Value);
-                }
                 if (File.Exists(_clientName + "_NC.xml"))
                 {
                     if (CheckForRoot(_xml) != true)
@@ -68,8 +64,6 @@ namespace Server
                     {
                         Console.WriteLine("Speichere nicht fertige xml erstmalig");
                         _xml.Save(_clientName + "_NC.xml");
-                        // Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
-                        // savinThread.Start();
                     }
                     else
                     {
@@ -92,8 +86,6 @@ namespace Server
             { return false; }
             else
             { return true; }
-
-
         }
 
 
