@@ -19,7 +19,7 @@ namespace Server
         private IPAddress ipAdresse;
         private TcpClient tcpClient;
         private IFormatierer formartierer = new FactoryFormate();
-        TcpListener listenerServer; 
+        TcpListener listenerServer;
         bool semaLock = false;
         #endregion
 
@@ -73,18 +73,14 @@ namespace Server
             // Dauerhaftes warten auf Verbindungsanfragen des Clients
             while (true)
             {
-
                 // Wenn eine Verbindungsanfrage besteht...
                 if (listenerServer.Pending())
                 {
-                    // ...und die Semaphore noch nicht blockiert ist,...
-                    //if (!semaLock)
-                    //{                     
 					try
 					{
 						Console.WriteLine("semalock");
 						semaphore.WaitOne();
-						// ...wird ein neuer Thread erstellt 
+						//Neuer Thread wird erstellt 
 						try
 						{
 							Thread.Sleep(50);
@@ -103,9 +99,7 @@ namespace Server
 								// Wenn lesbare Daten verfügbar sind...
 								if (stream.DataAvailable)
 								{
-									/////////////////////////////////////////////////////////////////
 									string str;
-									//using (stream)
 									{
 										byte[] data = new byte[1024];
 										using (MemoryStream ms = new MemoryStream())
@@ -120,17 +114,9 @@ namespace Server
 											str = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);											
 										}
 									}
-									///////////////////////////////////////////////////////////////
-									Console.WriteLine(str);
+
 									xml.LoadXml(str);
-
-									if (!xml.DocumentElement.HasChildNodes)
-									{
-										Console.WriteLine("Root empfangen");
-									}
-
 									formartierer.Formatieren(xml, 1);
-
 									Console.WriteLine("semafreigaben");
 									semaphore.Release();
 								}
@@ -145,7 +131,6 @@ namespace Server
 					{
 
 					}
-                    //}
                 }
             }
         }
