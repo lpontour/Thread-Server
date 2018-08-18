@@ -48,11 +48,13 @@ namespace Server
                     {
                         if (File.Exists(_clientName + ".xml"))
                         {
+                            Thread.Sleep(20);
                             Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 2));
                             savinThread.Start();
                         }
                         else
                         {
+                            Thread.Sleep(20);
                             Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 3));
                             savinThread.Start();
                         }
@@ -68,6 +70,7 @@ namespace Server
                     }
                     else
                     {
+                        Thread.Sleep(20);
                         Console.WriteLine("Achtung das root element ist als erstes angekommen, datei wird leer fertig gespeichert");
                         Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + ".xml", 1));
                         savinThread.Start();
