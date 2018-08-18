@@ -123,10 +123,12 @@ namespace Server
 									///////////////////////////////////////////////////////////////
 									Console.WriteLine(str);
 									xml.LoadXml(str);
+
 									if (!xml.DocumentElement.HasChildNodes)
 									{
 										Console.WriteLine("Root empfangen");
 									}
+
 									formartierer.Formatieren(xml, 1);
 
 									Console.WriteLine("semafreigaben");
