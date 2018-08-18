@@ -158,7 +158,7 @@ namespace Server
         {
             if(CheckForRoot(xml1))
             {
-                Thread.Sleep(50);
+                Thread.Sleep(200);
             }
             object thisThreadSyncObject = new object();
 
