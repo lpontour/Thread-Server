@@ -87,7 +87,7 @@ namespace Server
 						// ...wird ein neuer Thread erstellt 
 						try
 						{
-							Thread.Sleep(20);
+							Thread.Sleep(50);
 							new Thread(() =>
 							{
 								XmlDocument xml = new XmlDocument();
@@ -107,7 +107,7 @@ namespace Server
 									string str;
 									//using (stream)
 									{
-										byte[] data = new byte[1024];
+										byte[] data = new byte[2048];
 										using (MemoryStream ms = new MemoryStream())
 										{
 
@@ -123,10 +123,12 @@ namespace Server
 									///////////////////////////////////////////////////////////////
 									Console.WriteLine(str);
 									xml.LoadXml(str);
-									if (xml.DocumentElement.HasChildNodes)
+
+									if (!xml.DocumentElement.HasChildNodes)
 									{
 										Console.WriteLine("Root empfangen");
 									}
+
 									formartierer.Formatieren(xml, 1);
 
 									Console.WriteLine("semafreigaben");
