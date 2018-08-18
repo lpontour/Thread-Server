@@ -107,7 +107,7 @@ namespace Server
 									string str;
 									//using (stream)
 									{
-										byte[] data = new byte[1024];
+										byte[] data = new byte[2048];
 										using (MemoryStream ms = new MemoryStream())
 										{
 
