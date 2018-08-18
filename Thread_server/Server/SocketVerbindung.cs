@@ -87,7 +87,7 @@ namespace Server
 						// ...wird ein neuer Thread erstellt 
 						try
 						{
-							Thread.Sleep(20);
+							Thread.Sleep(50);
 							new Thread(() =>
 							{
 								XmlDocument xml = new XmlDocument();
