@@ -63,7 +63,7 @@ namespace Server
                     if (!CheckForRoot(_xml))
                     {
                         Console.WriteLine("versuche:Speichere nicht fertige xml erstmalig");
-                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + ".xml", 1));
+                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
                         savinThread.Start();
                     }
                     else
@@ -217,6 +217,10 @@ namespace Server
                     _keyDict.TryRemove(dateiName, out dummy);
 
                 }
+
+
+
+
             }
         }
         public static bool IsFileLocked(FileInfo file)
