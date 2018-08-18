@@ -78,16 +78,16 @@ namespace Server
                 if (listenerServer.Pending())
                 {
                     // ...und die Semaphore noch nicht blockiert ist,...
-
                     //if (!semaLock)
-                    //{
-                        Console.WriteLine("semalock");
+                    //{                     
 					try
 					{
+						Console.WriteLine("semalock");
 						semaphore.WaitOne();
 						// ...wird ein neuer Thread erstellt 
 						try
 						{
+							Thread.Sleep(20);
 							new Thread(() =>
 							{
 								XmlDocument xml = new XmlDocument();
@@ -123,7 +123,14 @@ namespace Server
 									///////////////////////////////////////////////////////////////
 									Console.WriteLine(str);
 									xml.LoadXml(str);
+									if (xml.DocumentElement.HasChildNodes)
+									{
+										Console.WriteLine("Root empfangen");
+									}
 									formartierer.Formatieren(xml, 1);
+
+									Console.WriteLine("semafreigaben");
+									semaphore.Release();
 								}
 							}).Start();
 						}
@@ -134,7 +141,7 @@ namespace Server
 					}
 					finally
 					{
-						semaphore.Release();
+
 					}
                     //}
                 }
