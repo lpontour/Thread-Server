@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Server
@@ -34,11 +35,13 @@ namespace Server
             {
                 _xml = xmlDocument;
                 _clientName = _xml.DocumentElement.Attributes[0].Value;
+
                 if (File.Exists(_clientName + "_NC.xml"))
                 {
                     if (CheckForRoot(_xml) != true)
                     {
-                        Console.WriteLine("Füge neue informationen hinzu");
+
+
                         Thread appendingThread = new Thread(() => AppendXml(_xml, 1));
                         appendingThread.Start();
                     }
@@ -62,9 +65,25 @@ namespace Server
                 {
                     if (!CheckForRoot(_xml))
                     {
-                        Console.WriteLine("versuche:Speichere nicht fertige xml erstmalig");
-                        Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
-                        savinThread.Start();
+                        string dateiname = _clientName + "_1NC.xml";
+                        object thisThreadSyncObject = new object();
+                        thisThreadSyncObject = _keyDict.GetOrAdd(dateiname, thisThreadSyncObject);
+                        if (Monitor.TryEnter(thisThreadSyncObject))
+                            try
+                            {
+                                Console.WriteLine("versuche:Speichere nicht fertige xml erstmalig");
+                                Thread savinThread = new Thread(() => SaveXml(_xml, _clientName + "_NC.xml", 1));
+                                savinThread.Start();
+                            }
+                            finally
+                            {
+                                Monitor.Exit(thisThreadSyncObject);
+                            }
+                        else
+                        {
+                            Thread.Sleep(30);
+                            DateiSchreiben(xmlDocument);
+                        }
                     }
                     else
                     {
@@ -98,33 +117,33 @@ namespace Server
             XmlDocument oldXml = new XmlDocument();
             string dateiName = _clientName + "_NC.xml";
             object thisThreadSyncObject = new object();
-
-            lock (thisThreadSyncObject)
+            bool thisTrhreadSyncLockTaken = false;
+            Monitor.Enter(thisThreadSyncObject, ref thisTrhreadSyncLockTaken);
+            try
             {
-                try
+
+                for (; ; )
                 {
-                    for (; ; )
-                    {
-                        object runningThreadSyncObject = _keyDict.GetOrAdd(dateiName, thisThreadSyncObject);
-                        if (runningThreadSyncObject == thisThreadSyncObject)
-                            break;
-
-                        lock (runningThreadSyncObject)
-                        {
-                            // Wait for the currently processing thread to finish and try inserting into the dictionary again.
-                        }
-                    }
-
-                    oldXml.Load(_clientName + "_NC.xml");
-
+                    object runningThreadSyncObject = _keyDict.GetOrAdd(dateiName, thisThreadSyncObject);
+                    if (runningThreadSyncObject == thisThreadSyncObject) { break; }
+                    Thread.Sleep(20);
                 }
-                finally
+
+                oldXml.Load(_clientName + "_NC.xml");
+
+            }
+            finally
+            {
+                // Remove the key from the lock dictionary
+                object dummy;
+                _keyDict.TryRemove(dateiName, out dummy);
+                if (thisTrhreadSyncLockTaken)
                 {
-                    // Remove the key from the lock dictionary
-                    object dummy;
-                    _keyDict.TryRemove(dateiName, out dummy);
+                    Monitor.Exit(thisThreadSyncObject);
                 }
             }
+
+
 
             XmlNode recievedXmlDocNode = xml1.DocumentElement.FirstChild;
             XmlNode oldXmlDocNode;
@@ -169,25 +188,23 @@ namespace Server
         {
             if (CheckForRoot(xml1))
             {
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
             }
             object thisThreadSyncObject = new object();
+            bool thisThreadSyncLockTaken = false;
 
-
-            lock (thisThreadSyncObject)
+            Monitor.Enter(thisThreadSyncObject, ref thisThreadSyncLockTaken);
             {
                 try
                 {
                     for (; ; )
                     {
                         object runningThreadSyncObject = _keyDict.GetOrAdd(dateiName, thisThreadSyncObject);
-                        if (runningThreadSyncObject == thisThreadSyncObject)
-                            break;
 
-                        lock (runningThreadSyncObject)
-                        {
-                            // Wait for the currently processing thread to finish and try inserting into the dictionary again.
-                        }
+                        if (runningThreadSyncObject == thisThreadSyncObject) { break; }
+
+                        Thread.Sleep(20);
+
                     }
 
                     try
@@ -229,8 +246,12 @@ namespace Server
                     // Remove the key from the lock dictionary
                     object dummy;
                     _keyDict.TryRemove(dateiName, out dummy);
-
+                    Monitor.Exit(thisThreadSyncObject);
                 }
+
+
+
+
             }
         }
         public static bool IsFileLocked(FileInfo file)
